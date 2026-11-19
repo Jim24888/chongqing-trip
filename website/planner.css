@@ -95,3 +95,12 @@
 .place-links { display:flex; gap:.6rem 1rem; flex-wrap:wrap; font-size:.83rem; }
 .planner :focus-visible, .place-dialog :focus-visible { outline:2px solid #b15434; outline-offset:2px; }
 @media print { .planner-tabs,.map-areas,.rank-tabs,.plan-history,.schedule-open,.map-caption button { display:none; } }
+
+/* Map loading and dense landmarks */
+.map-retry{min-height:44px;margin:0 0 12px;padding:8px 14px;border:1px solid #c8d2c6;border-radius:9px;background:#fffaf2;color:#244a3f;font:inherit;cursor:pointer}
+.map-load-warning{background:#eef0ea}
+.map-nearby-list{min-width:180px;max-height:260px;overflow:auto}
+.map-nearby-list>strong{display:block;margin:4px 0 10px}
+.map-nearby-choice{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;margin:6px 0;padding:6px;border:1px solid #d7dacf;border-radius:8px;background:#fffdf8;color:#263d38;font:inherit;text-align:left;cursor:pointer}
+.map-nearby-choice img{width:56px;height:44px;flex:0 0 56px;object-fit:cover;border-radius:5px}
+.map-nearby-choice span{font-size:14px}

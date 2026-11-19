@@ -246,27 +246,66 @@
     const map = L.map(node, { scrollWheelZoom: false, fadeAnimation: false, zoomAnimation: false, minZoom: 10, maxZoom: 18 }).setView(cityView, 12);
     map.attributionControl.setPrefix(false);
     const caption = node.parentElement.querySelector('.map-service');
-    const schematic = '正在使用示意底图。放大可看照片，实际入口请用详情里的导航。';
-    const riverPane = map.createPane('river-sketch');
-    riverPane.style.zIndex = '180';
-    const rivers = [
-      [[29.614,106.444],[29.590,106.457],[29.572,106.471],[29.559,106.506],[29.557,106.532],
-       [29.567,106.552],[29.566,106.573],[29.568,106.585],[29.567,106.590]],
-      [[29.506,106.505],[29.520,106.525],[29.536,106.551],[29.544,106.566],[29.550,106.581],
-       [29.560,106.587],[29.567,106.590],[29.585,106.614],[29.600,106.653]]
-    ];
-    L.polyline(rivers, { pane: 'river-sketch', color: '#a7cbd4', weight: 11, interactive: false }).addTo(map);
-    const overview = node === discoverMapNode;
-    caption.textContent = schematic;
+    const retry = button('重试底图', () => { failed = false; tiles?.redraw(); }, 'map-retry');
+    retry.hidden = true;
+    caption.insertAdjacentElement('afterend', retry);
+    let tiles, timeout, failed = false;
+    const loadedVisibleTiles = () => {
+      const box = node.getBoundingClientRect();
+      return [...node.querySelectorAll('.leaflet-tile')].filter(tile => {
+        const r = tile.getBoundingClientRect();
+        return tile.complete && tile.naturalWidth > 0 && r.right > box.left && r.left < box.right && r.bottom > box.top && r.top < box.bottom;
+      }).length;
+    };
+    const unavailable = () => {
+      failed = true; retry.hidden = false;
+      caption.textContent = loadedVisibleTiles()
+        ? '底图部分区域未加载。可重试底图；地点详情和导航仍可使用。'
+        : '地图底图未能加载，当前位置标记不代表道路。请重试底图，或从地点列表打开详情和导航。';
+      node.classList.add('map-load-warning');
+    };
     if (!window.CQ_OFFLINE) {
-      const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxNativeZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
-      tiles.on('tileerror', () => { caption.textContent = schematic; });
-      tiles.on('tileload', () => { caption.textContent = '放大地图看景点代表图，点图看景观详情。'; });
-    }
-    const instance = { map, layer: L.layerGroup().addTo(map), points: [], overview };
+      caption.textContent = '正在加载地图底图…';
+      tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxNativeZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      });
+      tiles.on('loading', () => {
+        failed = false; clearTimeout(timeout);
+        timeout = setTimeout(() => { if (!loadedVisibleTiles()) unavailable(); }, 8000);
+      });
+      tiles.on('tileerror', event => {
+        event.tile.style.visibility = 'hidden';
+        unavailable();
+      });
+      tiles.on('tileload', () => {
+        if (!failed) {
+          caption.textContent = '放大查看代表图。密集地点会合并显示，点开可逐个查看。';
+          retry.hidden = true; node.classList.remove('map-load-warning');
+        }
+      });
+      tiles.on('load', () => {
+        clearTimeout(timeout);
+        if (!loadedVisibleTiles()) unavailable();
+      });
+      tiles.addTo(map);
+    } else caption.textContent = '离线版没有道路底图。可点地点标记或下方地点列表，打开详情和导航。';
+    const instance = { map, layer: L.layerGroup().addTo(map), points: [], overview: node === discoverMapNode, fitted: false, signature: '' };
     map.on('zoomend', () => drawMarkers(instance));
+    if (typeof ResizeObserver === 'function') {
+      let lastWidth = 0, lastHeight = 0, scheduled;
+      instance.resizeObserver = new ResizeObserver(() => {
+        const width = node.clientWidth, height = node.clientHeight;
+        if (!width || !height || width === lastWidth && height === lastHeight) return;
+        lastWidth = width; lastHeight = height;
+        cancelAnimationFrame(scheduled);
+        scheduled = requestAnimationFrame(() => {
+          map.invalidateSize({ pan: false, debounceMoveend: true });
+          drawMarkers(instance);
+        });
+      });
+      instance.resizeObserver.observe(node);
+    }
     return instance;
   }
   let tripMap, discoverMap;
@@ -278,8 +317,7 @@
     const groups = [];
     points.forEach((place, i) => {
       const position = map.project(place.coords);
-      const group = overview && zoom < 18
-        ? groups.find(item => item.position.distanceTo(position) < (zoom >= previewZoom ? 72 : 37)) : null;
+      const group = groups.find(item => item.position.distanceTo(position) < (zoom >= previewZoom ? 86 : 38));
       if (group) group.items.push({ place, i });
       else groups.push({ position, items: [{ place, i }] });
     });
@@ -292,7 +330,30 @@
           alt: `放大查看附近 ${items.length} 个景点`,
           icon: L.divIcon({ className: 'city-pin city-cluster', html: `${items.length}处`, iconSize: [37, 37], iconAnchor: [18, 18] })
         }).addTo(layer);
-        cluster.on('click', () => map.setView(center, Math.min(18, map.getZoom() + 2)));
+        if (zoom >= previewZoom && place.photos[0]) {
+          const preview = element('div', 'pin-preview');
+          const image = element('img'); image.src = place.photos[0].src;
+          image.alt = `附近${items.length}处地点代表图`;
+          preview.append(image, element('span', '', `附近${items.length}处`));
+          cluster.setIcon(L.divIcon({ className: 'city-photo-pin city-photo-cluster', html: preview, iconSize: [74,62], iconAnchor: [37,62] }));
+        }
+        cluster.on('click', () => {
+          if (map.getZoom() < map.getMaxZoom()) {
+            map.setView(center, Math.min(map.getMaxZoom(), map.getZoom() + 2));
+            return;
+          }
+          const list = element('div', 'map-nearby-list');
+          list.append(element('strong', '', `附近${items.length}处地点`));
+          for (const { place: nearby } of items) {
+            const choice = button('', () => { map.closePopup(); showPlace(nearby, cluster.getElement()); }, 'map-nearby-choice');
+            if (nearby.photos[0]) {
+              const image = element('img'); image.src = nearby.photos[0].src; image.alt = nearby.name;
+              choice.append(image);
+            }
+            choice.append(element('span', '', nearby.name)); list.append(choice);
+          }
+          L.popup({ maxWidth: 280 }).setLatLng(center).setContent(list).openOn(map);
+        });
         continue;
       }
       const photo = place.photos[0];
@@ -326,10 +387,14 @@
     const { map } = instance;
     instance.points = placesToPlot;
     if (!map.getContainer().getClientRects().length) return;
-    map.invalidateSize();
-    if (placesToPlot.length === 1) map.setView(placesToPlot[0].coords, 15);
-    else if (placesToPlot.length) map.fitBounds(placesToPlot.map(place => place.coords), { padding: [20, 20], maxZoom: 15, animate: false });
-    else map.setView(cityView, 12);
+    map.invalidateSize({ pan: false });
+    const signature = placesToPlot.map(place => place.id).join('|');
+    if (!instance.fitted || instance.signature !== signature) {
+      if (placesToPlot.length === 1) map.setView(placesToPlot[0].coords, 15);
+      else if (placesToPlot.length) map.fitBounds(placesToPlot.map(place => place.coords), { padding: [50, 50], maxZoom: 15, animate: false });
+      else map.setView(cityView, 12);
+      instance.fitted = true; instance.signature = signature;
+    }
     drawMarkers(instance);
   }
 
