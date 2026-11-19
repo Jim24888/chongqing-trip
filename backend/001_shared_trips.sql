@@ -145,4 +145,3 @@ grant execute on function public.cq_create_trip(uuid,text,jsonb) to anon, authen
 grant execute on function public.cq_read_trip(uuid,text) to anon, authenticated;
 grant execute on function public.cq_patch_trip(uuid,text,uuid,jsonb) to anon, authenticated;
 commit;
-
