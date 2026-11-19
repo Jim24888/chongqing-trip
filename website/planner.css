@@ -1,0 +1,97 @@
+.planner { margin: 1rem 0 1.5rem; }
+.planner h2 { margin-bottom: .45rem; }
+.planner .intro { margin: 0 0 .9rem; }
+.planner-tabs, .map-areas, .rank-tabs { display:flex; gap:.5rem; margin:.8rem 0; overflow:auto; padding:2px 2px 5px; }
+.planner-tabs button, .map-areas button, .rank-tabs button, .plan-button { font:inherit; font-weight:650; color:#244a3f; background:#fffaf2; border:1px solid #c8d2c6; border-radius:12px; cursor:pointer; padding:.62rem .85rem; white-space:nowrap; min-height:44px; }
+.planner-tabs button { flex:1; }
+.map-areas { flex-wrap:wrap; overflow:visible; gap:.35rem; }
+.map-areas button { padding:.55rem .65rem; }
+.planner-tabs small { display:block; font-weight:450; }
+.planner button[aria-pressed="true"], .plan-button.primary { color:#fff; background:#244a3f; border-color:#244a3f; }
+.city-map { height:clamp(275px, 54vw, 430px); background:#e7ebe2; border:1px solid #c8d2c6; border-radius:16px; z-index:0; }
+.city-map .leaflet-container, .city-map .leaflet-tile { max-width:none; }
+.city-map .leaflet-attribution-flag { display:none; }
+.city-pin { display:grid; place-items:center; border:2px solid white; border-radius:50%; background:#244a3f; color:white; box-shadow:0 2px 6px #1e292969; font-weight:800; font-size:12px; }
+.city-pin.active { background:#a44529; }
+.city-cluster { background:#a44529; font-size:11px; }
+.city-photo-pin { cursor:pointer; }
+.city-pin.map-current { background:#9e4228; box-shadow:0 0 0 3px #f4c093,0 2px 6px #1e292969; }
+.city-photo-pin.map-current .pin-preview { border-color:#eab080; background:#9e4228; }
+.pin-preview { position:relative; overflow:hidden; border:2px solid #fff; border-radius:9px; background:#244a3f; color:white; box-shadow:0 3px 9px #1e292970; }
+.pin-preview img { display:block; width:100%; height:43px; object-fit:cover; }
+.pin-preview span { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:1px 3px; text-align:center; font-size:10px; }
+.catalog-group { margin:.8rem 0 1.1rem; }
+.catalog-group h3 { margin:.4rem 0; font-size:1rem; }
+.catalog-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:.6rem; }
+.catalog-entry { min-width:0; padding:0; text-align:left; color:inherit; font:inherit; cursor:pointer; overflow:hidden; background:#fffcf5; border:1px solid #ddd9c9; border-radius:12px; }
+.catalog-entry img { width:100%; height:90px; object-fit:cover; display:block; background:#e9eadf; }
+.catalog-info { display:block; padding:.5rem .6rem; font-size:.89rem; line-height:1.4; }
+.catalog-info small { display:block; font-size:.76rem; color:#506054; margin-top:.15rem; }
+.shoot-section { margin:1.1rem 0 1.5rem; }
+.shoot-section h2 { margin-bottom:.4rem; }
+#shooting, #day-title { scroll-margin-top:76px; }
+.shoot-panel { background:#fffcf5; border:1px solid #ddd9c9; border-radius:16px; padding:clamp(.75rem,3vw,1.1rem); }
+.shoot-panel h3 { margin:.15rem 0 .55rem; }
+.shoot-panel p { margin:.45rem 0; }
+.shoot-panel .place-links { margin:.55rem 0 .8rem; }
+.shoot-address { display:grid; grid-template-columns:auto 1fr; gap:.35rem .65rem; margin:.45rem 0; font-size:.88rem; }
+.shoot-address dt { color:#315a4c; font-weight:750; }
+.shoot-address dd { margin:0; }
+.shoot-viewer { margin:.8rem 0 0; }
+.shoot-frame { position:relative; height:clamp(235px,65vw,460px); overflow:hidden; border-radius:12px; background:#e8e7dd; }
+.shoot-frame img { display:block; width:100%; height:100%; object-fit:contain; touch-action:pan-y; }
+.shoot-arrow { display:grid; place-items:center; position:absolute; top:50%; transform:translateY(-50%); z-index:1; width:44px; height:44px; border:1px solid #ffffff87; border-radius:50%; background:#1e3d32ed; color:#fff; font:700 1.55rem/1 sans-serif; cursor:pointer; }
+.shoot-arrow[hidden] { display:none; }
+#shoot-prev { left:.4rem; }
+#shoot-next { right:.4rem; }
+.shoot-meta { display:flex; justify-content:space-between; gap:.4rem; align-items:flex-start; margin-top:.5rem; }
+.shoot-counter { white-space:nowrap; font-size:.77rem; background:#e8ede4; color:#274b3e; border-radius:20px; padding:.2rem .6rem; font-weight:700; }
+.shoot-credit { font-size:.78rem; color:#506054; }
+#shoot-clear { padding:0; }
+.schedule-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:.35rem; }
+.schedule-position { min-height:44px; border:1px solid #c8d2c6; border-radius:9px; background:#fffaf2; color:#244a3f; font:inherit; font-size:.78rem; font-weight:700; padding:.38rem .53rem; cursor:pointer; white-space:nowrap; }
+.schedule-position[aria-pressed="true"] { background:#244a3f; color:#fff; }
+.schedule-row.at-stop { background:#eaf0e6; border-radius:9px; padding-inline:.35rem; }
+@media (max-width:480px) { .schedule-actions { max-width:111px; } }
+.map-caption { display:flex; justify-content:space-between; align-items:flex-start; gap:.7rem; margin:.6rem 0; color:#46584c; font-size:.83rem; }
+.map-caption button, .schedule-open { padding:5px 0; border:0; background:none; color:#8b3b25; font:inherit; text-decoration:underline; cursor:pointer; }
+.map-message { padding:.8rem 1rem; background:#f0ecdf; border-radius:12px; font-size:.9rem; }
+.map-message[hidden] { display:none; }
+.map-index { margin:.6rem 0 1rem; }
+.map-index > summary { cursor:pointer; font-weight:650; }
+.map-index-list { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.5rem; }
+.map-index-list button { background:#f9f6ee; border:1px solid #d7dacf; border-radius:9px; padding:.45rem .65rem; font:inherit; cursor:pointer; min-height:40px; }
+.planner .day { margin: .7rem 0; }
+.schedule-group { padding:.6rem 0; border-top:1px solid #e1dfd4; }
+.schedule-group > h4 { margin:0 0 .4rem; color:#315a4c; }
+.schedule-row { display:grid; grid-template-columns: 24px 1fr auto; gap:.55rem; align-items:center; padding:.35rem 0; }
+.schedule-row input { width:18px; height:18px; accent-color:#244a3f; }
+.schedule-row label { cursor:pointer; }
+.schedule-row small { display:block; font-size:.8rem; color:#526056; }
+.plan-history { color:#46584c; font-size:.87rem; margin-top:1rem; }
+.plan-history summary { cursor:pointer; }
+.rank-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(245px,1fr)); gap:.6rem; padding:0; list-style:none; }
+.rank-list li { min-width:0; }
+.rank-entry { width:100%; min-height:86px; display:grid; grid-template-columns:26px 58px 1fr; align-items:center; gap:.6rem; text-align:left; border:1px solid #ddd9c9; border-radius:13px; background:#fffcf5; padding:.6rem; color:inherit; font:inherit; cursor:pointer; }
+.rank-entry img, .rank-thumb { width:58px; height:58px; object-fit:cover; border-radius:8px; background:#e6ebdf; }
+.rank-thumb { display:grid; place-items:center; font-size:.75rem; color:#335746; }
+.rank-entry small { display:block; color:#506054; font-size:.8rem; line-height:1.4; }
+.rank-number { align-self:start; color:#98482f; font-weight:800; padding-top:.25rem; }
+.place-dialog { width:min(560px,calc(100% - 24px)); padding:0; border:0; border-radius:17px; color:#25382f; background:#fffbf4; max-height:calc(100dvh - 28px); }
+.place-dialog::backdrop { background:#111b17a8; }
+.place-dialog form { margin:0; }
+.place-dialog-head { display:flex; justify-content:space-between; align-items:start; gap:.7rem; position:sticky; top:0; z-index:1; padding:.9rem 1rem; background:#fffbf4; border-bottom:1px solid #e4e1d6; }
+.place-dialog-head h2 { margin:0; font-size:1.25rem; }
+.place-dialog-body { padding:0 1rem 1rem; }
+.place-dialog-body p { margin:.65rem 0; }
+.place-photos { display:grid; grid-auto-flow:column; grid-auto-columns:92%; gap:.55rem; overflow-x:auto; scroll-snap-type:x mandatory; }
+.place-photos figure { margin:0; scroll-snap-align:start; }
+.place-photos img { width:100%; height:210px; object-fit:contain; background:#eeeee6; border-radius:10px; display:block; }
+.place-photos figcaption { font-size:.76rem; margin-top:.2rem; }
+.place-plan { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin:.9rem 0; }
+.place-plan label { font-size:.85rem; font-weight:700; }
+.place-plan select { display:block; width:100%; background:white; color:#244a3f; min-height:42px; font:inherit; margin-top:.2rem; border:1px solid #c8d2c6; border-radius:8px; padding:.3rem; }
+.place-plan button { grid-column:1/-1; }
+.place-links { display:flex; gap:.6rem 1rem; flex-wrap:wrap; font-size:.83rem; }
+.planner :focus-visible, .place-dialog :focus-visible { outline:2px solid #b15434; outline-offset:2px; }
+@media print { .planner-tabs,.map-areas,.rank-tabs,.plan-history,.schedule-open,.map-caption button { display:none; } }
