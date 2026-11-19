@@ -6,7 +6,7 @@
   const byDay = new Map(dates.map(day => [day.id, day]));
   const key = 'chongqing-daily-plans-v1';
   const defaults = Object.fromEntries(dates.map(day => [day.id, Object.fromEntries(
-    day.defaults.map(id => [id, { slot: byId.get(id).slot, active: true }])
+    day.defaults.map(id => [id, { slot: day.defaultSlots?.[id] || byId.get(id).slot, active: true }])
   )]));
   let plan = { day: dates[0].id, days: defaults, history: [] };
   try {
@@ -118,7 +118,7 @@
     }
     const sources = element('div', 'place-links');
     for (const item of info.sources || []) sources.append(link(item.label + ' ↗', item.url));
-    box.append(sources, element('p', 'note', '资料复核于2026年11月11日。临时检修、活动和限流仍以当天公告为准。'));
+    box.append(sources, element('p', 'note', `资料复核于${info.checked || '2026-11-11'}。临时检修、活动和限流仍以当天公告为准。`));
   }
 
   function renderReviews() {
@@ -398,11 +398,54 @@
     drawMarkers(instance);
   }
 
+  function renderRouteGuide(day) {
+    const host = select('#day-route-guide');
+    if (!host) return;
+    host.replaceChildren();
+    if (!day.timeline?.length) return;
+    const intro = element('p', 'note', '这是更新后的路线建议。你已保存的勾选不会自动改动；采用时只替换这天的景点，餐饮与住宿候选保留。');
+    const apply = button('采用这天建议', () => {
+      const wanted = new Set(day.defaults);
+      const items = plan.days[day.id] ||= {};
+      const at = Date.now();
+      for (const [id, item] of Object.entries(items)) {
+        const place = byId.get(id);
+        if (place && (place.kind === 'sight' || place.kind === 'experience' || (place.coords && place.area !== 'food' && place.kind !== 'hotel')) && item.active && !wanted.has(id)) {
+          item.active = false;
+          plan.history.unshift({day:day.id,id,active:false,slot:item.slot,at});
+        }
+      }
+      for (const id of wanted) {
+        const slot = day.defaultSlots?.[id] || byId.get(id).slot;
+        items[id] = {slot,active:true};
+        plan.history.unshift({day:day.id,id,active:true,slot,at});
+      }
+      if (plan.position[day.id] && !items[plan.position[day.id]]?.active) delete plan.position[day.id];
+      plan.history = plan.history.slice(0,30);
+      persist(); renderDay();
+      select('#day-title').focus({preventScroll:true});
+    }, 'plan-button');
+    const plannedSights = entries(day.id).filter(([id,item]) => item.active &&
+      (byId.get(id).kind === 'sight' || byId.get(id).kind === 'experience' || (byId.get(id).coords && byId.get(id).area !== 'food' && byId.get(id).kind !== 'hotel')));
+    const matches = plannedSights.length === day.defaults.length && day.defaults.every(id =>
+      plan.days[day.id]?.[id]?.active && plan.days[day.id][id].slot === (day.defaultSlots?.[id] || byId.get(id).slot));
+    apply.disabled = matches;
+    if (matches) apply.textContent = '已按这版建议安排';
+    const list = element('ol', 'route-timeline');
+    for (const stop of day.timeline) {
+      const row = element('li');
+      row.append(element('span', 'route-time', stop.time), element('strong', '', stop.title), element('p', '', stop.detail));
+      list.append(row);
+    }
+    host.append(intro,apply,list);
+  }
+
   function renderDay() {
     const day = byDay.get(plan.day);
     const stop = activeStop();
     select('#day-title').textContent = day.title;
     select('#day-context').textContent = day.context;
+    renderRouteGuide(day);
     document.querySelectorAll('[data-plan-day]').forEach(node => {
       node.setAttribute('aria-pressed', String(node.dataset.planDay === day.id));
     });
@@ -513,8 +556,8 @@
     if (!catalog) return;
     const activeIds = new Set(dates.flatMap(day => entries(day.id).filter(([, item]) => item.active).map(([id]) => id)));
     const visible = places.filter(place => catalogFilter === 'all' ||
-      (catalogFilter === 'walk' && place.coords) ||
-      (catalogFilter === 'food' && !place.coords && place.kind !== 'hotel') ||
+      (catalogFilter === 'walk' && (place.coords || place.kind === 'sight' || place.kind === 'experience')) ||
+      (catalogFilter === 'food' && !place.coords && place.area === 'food') ||
       (catalogFilter === 'hotel' && place.kind === 'hotel') ||
       (catalogFilter === 'saved' && activeIds.has(place.id)));
     catalog.replaceChildren();

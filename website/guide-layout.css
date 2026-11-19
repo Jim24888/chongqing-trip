@@ -317,3 +317,10 @@ button:active:not(.shoot-arrow) { translate: 0 1px; }
 @media print {
   .place-zoom, .place-dialog { display: none; }
 }
+.travel-update{margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--white)}
+.travel-update h2{font-size:24px;line-height:1.4;margin:8px 0 12px}.travel-update p,.travel-update li{font-size:15px;line-height:1.75}
+.travel-update summary{min-height:44px;cursor:pointer;padding:8px 0;font-weight:650}.travel-update ul{padding-left:20px}.travel-update li+li{margin-top:8px}
+.route-timeline{list-style:none;padding:0;margin:18px 0}.route-timeline li{position:relative;border-left:2px solid var(--line);padding:0 0 20px 18px;margin-left:5px}.route-timeline li:last-child{padding-bottom:0}
+.route-time{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}.route-timeline strong{font-size:16px}.route-timeline p{font-size:14px;line-height:1.7;margin:6px 0 0}
+.ticket-scroll{overflow-x:auto;overscroll-behavior-x:contain}.ticket-scroll table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px;line-height:1.7}.ticket-scroll th,.ticket-scroll td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top}.ticket-scroll th{font-weight:700}
+@media(max-width:480px){.travel-update{padding:16px}.travel-update h2{font-size:22px}.route-timeline li{padding-left:14px}.ticket-scroll table{min-width:460px}}
